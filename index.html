@@ -52,10 +52,17 @@
     </div>
 
     <script>
-      window.Chat.open({
-        workflow_id: "wf_690bb1d11a1c8190adcb640e789dc71508144f38704a106c",
-        version: "1",
-        theme: "light", // can switch to "dark" if embedding in dark Teams theme
+      window.addEventListener("load", () => {
+        if (!window.ChatKit) {
+          console.error("ChatKit SDK not loaded yet.");
+          return;
+        }
+
+        window.ChatKit.open({
+          workflow_id: "wf_690bb1d11a1c8190adcb640e789dc71508144f38704a106c",
+          version: "1",
+          theme: "light", // or "dark" for Teams dark mode
+        });
       });
     </script>
   </body>
