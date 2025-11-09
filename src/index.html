@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
-  <title>Vanilla JavaScript App</title>
-</head>
-
-<body>
-  <main>
-    <h1>Vanilla JavaScript App</h1>
-  </main>
-</body>
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Estoppel Letter Bot</title>
+    <script src="https://cdn.openai.com/chatkit/v1/chatkit.js"></script>
+  </head>
+  <body>
+    <div id="chat" style="height: 100vh; width: 100%;"></div>
+    <script>
+      window.chatkit.open({
+        workflow_id: "wf_690bb1d11a1c8190adc640e789dc71508144f38704a106c",
+        version: "1",
+        theme: "light",
+      });
+    </script>
+  </body>
 </html>
