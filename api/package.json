@@ -1,8 +1,5 @@
 {
   "name": "swa-api",
   "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "openai": "^4.60.0"
-  }
+  "type": "module"
 }
