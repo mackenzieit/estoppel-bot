@@ -1,4 +1,4 @@
-// api/chatkit-session/index.js
+// api/chatkit-session/index.js  (CommonJS)
 module.exports = async function (context, req) {
   try {
     const OPENAI_API = "https://api.openai.com/v1/chatkit/sessions";
@@ -11,61 +11,39 @@ module.exports = async function (context, req) {
       return;
     }
 
-    const payload = {
-      workflow_id: WORKFLOW_ID,
-      workflow: WORKFLOW_ID
-    };
+    const payload = { workflow_id: WORKFLOW_ID };
 
+    // Do the POST
     const resp = await fetch(OPENAI_API, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
         "Accept": "application/json",
-        // REQUIRED for ChatKit per the API error you've seen
-        "OpenAI-Beta": "chatkit_beta=v1"
+        "OpenAI-Beta": "chatkit_beta=v1" // REQUIRED
       },
       body: JSON.stringify(payload),
     });
 
     const txt = await resp.text();
 
-    let data;
-    try {
-      data = txt ? JSON.parse(txt) : null;
-    } catch (parseErr) {
-      context.log.error("Non-JSON response from OpenAI:", txt);
-      context.res = { status: 502, body: { error: "OpenAI returned non-JSON response", raw: txt } };
-      return;
-    }
+    // Log everything for debugging
+    context.log("OpenAI status:", resp.status);
+    context.log("OpenAI raw text response:", txt);
 
-    if (!resp.ok) {
-      const serverMsg = data?.error?.message || data || `status ${resp.status}`;
-      context.log.error("OpenAI API returned error:", serverMsg);
-      context.res = { status: resp.status || 500, body: { error: "OpenAI error", detail: serverMsg } };
-      return;
-    }
-
-    // tolerate several shapes
-    const clientSecret =
-      data?.client_secret ||
-      data?.session?.client_secret ||
-      data?.session?.clientSecret ||
-      data?.clientSecret;
-
-    if (!clientSecret) {
-      context.log("Unexpected OpenAI response (no client_secret):", JSON.stringify(data));
-      context.res = { status: 502, body: { error: "No client_secret in OpenAI response", response: data } };
-      return;
-    }
-
+    // Return raw response to caller (debug)
     context.res = {
       status: 200,
       headers: { "Content-Type": "application/json" },
-      body: { client_secret: clientSecret }
+      body: {
+        debug: {
+          status: resp.status,
+          body_text: txt
+        }
+      }
     };
   } catch (err) {
-    context.log.error("chatkit-session exception:", err?.message || err);
+    context.log.error("chatkit-session exception:", err);
     context.res = { status: 500, body: { error: String(err?.message || err) } };
   }
 };
