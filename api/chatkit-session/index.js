@@ -1,62 +1,71 @@
-// api/chatkit-session/index.js
-const fs = require("fs");
-const path = require("path");
-
+// /api/chatkit-session/index.js
 module.exports = async function (context, req) {
   try {
-    const base = __dirname || path.dirname(process.argv[1] || "."); // where the function is running
-    const parent = path.resolve(base, "..");
-    function safeList(dir) {
-      try {
-        return fs.readdirSync(dir).map(f => {
-          const p = path.join(dir, f);
-          const stat = fs.existsSync(p) ? fs.statSync(p) : null;
-          return {
-            name: f,
-            isFile: stat ? stat.isFile() : null,
-            isDirectory: stat ? stat.isDirectory() : null
-          };
-        });
-      } catch (e) {
-        return { error: String(e) };
-      }
+    context.log('chatkit-session invoked', { method: req_method: req?.method, query: req?.query });
+
+    // show whether Azure made the env var available
+    const hasKey = !!process.env.OPENAI_API_KEY;
+    context.log('OPENAI_API_KEY present?', hasKey);
+
+    const OPENAI_API = "https://api.openai.com/v1/chatkit/sessions";
+    const WORKFLOW_ID = "wf_690bb1d11a1c8190adcb640e789dc71508144f38704a106c";
+
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      context.log.error("OPENAI_API_KEY missing - returning 500");
+      context.res = {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+        body: { error: "OPENAI_API_KEY not set in app settings (process.env.OPENAI_API_KEY is falsy)" }
+      };
+      return;
     }
 
-    const info = {
-      probe_time: new Date().toISOString(),
-      __dirname: base,
-      __filename: __filename,
-      node_version: process.version,
-      env_sample: {
-        OPENAI_API_KEY_exists: !!process.env.OPENAI_API_KEY,
-        CHATKIT_WORKFLOW_ID: process.env.CHATKIT_WORKFLOW_ID || null,
-      },
-      listing_base: safeList(base),
-      listing_parent: safeList(parent),
-      file_contents: {}
-    };
+    // Build payload
+    const payload = { workflow_id: WORKFLOW_ID };
 
-    // try to read function.json and any index.* files
-    const tryRead = (file) => {
-      try { return fs.readFileSync(path.join(base, file), "utf8"); }
-      catch (e) { return `ERROR: ${String(e)}`; }
-    };
-    ["function.json", "index.js", "index.mjs", "index.ts", "package.json"].forEach(f => {
-      info.file_contents[f] = tryRead(f);
+    // POST to OpenAI ChatKit
+    context.log('Calling OpenAI ChatKit endpoint', OPENAI_API);
+    const resp = await fetch(OPENAI_API, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "OpenAI-Beta": "chatkit_beta=v1" // REQUIRED
+      },
+      body: JSON.stringify(payload),
+      // timeout may be whatever; let node default
     });
 
-    context.log("DEBUG: chatkit-session probe", JSON.stringify({
-      dirname: base,
-      files: info.listing_base.map(f=>f.name).slice(0,50)
-    }));
+    const text = await resp.text().catch(e => {
+      context.log.error('Error reading resp.text()', e);
+      return null;
+    });
+
+    context.log('OpenAI status', resp.status, 'body (first 1000 chars):', (text || '').slice(0, 1000));
+
+    // If response is JSON, try to parse; otherwise return raw text
+    let parsed = null;
+    try { parsed = JSON.parse(text); } catch (e) { /* not JSON */ }
 
     context.res = {
-      status: 200,
+      status: resp.status,
       headers: { "Content-Type": "application/json" },
-      body: info
+      body: {
+        debug: {
+          openai_status: resp.status,
+          openai_body_text: text,
+          openai_body_json: parsed
+        }
+      }
     };
   } catch (err) {
-    context.log.error("probe exception:", err);
-    context.res = { status: 500, body: { error: String(err) } };
+    context.log.error('Unhandled exception in function:', err && err.stack || String(err));
+    context.res = {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+      body: { error: String(err && err.message || err), stack: err && err.stack }
+    };
   }
 };
