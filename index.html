@@ -35,22 +35,22 @@
 <script>
   async function initChatKit() {
     try {
-      const response = await fetch("/api/chatkit-session", { method: "POST" });
-      const { client_secret } = await response.json();
+      const res = await fetch("/api/chatkit-session", { method: "POST" });
+      if (!res.ok) throw new Error("API " + res.status);
+      const { client_secret } = await res.json();
 
-      if (!window.ChatKit) throw new Error("SDK not loaded yet");
-
+      if (!window.ChatKit) throw new Error("ChatKit SDK not loaded yet");
       window.ChatKit.open({
         client_secret,
-        theme: "light",
+        theme: "light"
       });
     } catch (e) {
       console.error("❌ ChatKit init failed:", e);
     }
   }
-
   window.addEventListener("load", initChatKit);
 </script>
+
 
 
   </body>
