@@ -4,15 +4,55 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Estoppel Letter Bot</title>
+
+    <!-- 🔐 OpenAI Domain Verification -->
+    <meta name="openai-domain-verification" content="domain_pk_690fe9e3d6908190a3a6fc3d83b3897608b40473f6eca6f5" />
+
+    <!-- 🧠 ChatKit Script -->
     <script src="https://cdn.openai.com/chatkit/v1/chatkit.js"></script>
+
+    <style>
+      html, body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #f9fafb;
+        color: #1e293b;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: #0f172a;
+          color: #e2e8f0;
+        }
+      }
+
+      #chat {
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .loading {
+        font-size: 1.1rem;
+        opacity: 0.7;
+      }
+    </style>
   </head>
   <body>
-    <div id="chat" style="height: 100vh; width: 100%;"></div>
+    <div id="chat">
+      <div class="loading">Loading Estoppel Letter Bot...</div>
+    </div>
+
     <script>
       window.chatkit.open({
-        workflow_id: "wf_690bb1d11a1c8190adc640e789dc71508144f38704a106c",
+        workflow_id: "wf_690bb1d11a1c8190adcb640e789dc71508144f38704a106c",
         version: "1",
-        theme: "light",
+        theme: "light", // can switch to "dark" if embedding in dark Teams theme
       });
     </script>
   </body>
