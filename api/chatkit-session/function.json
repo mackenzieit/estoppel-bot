@@ -5,8 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": [ "get", "post" ],
-      "route": "chatkit-session"
+      "methods": ["get","post","options"]
     },
     {
       "type": "http",
@@ -14,6 +13,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "index.mjs",
-  "entryPoint": "default"
+  "scriptFile": "index.js"
 }
