@@ -35,7 +35,7 @@
 <script>
   async function initChatKit() {
     try {
-      const r = await fetch("/api/chatkit-session", { method: "POST" });
+      const r = await fetch("https://mackenzie-functions.azurewebsites.net/api/chatkit-session", { method: "POST" });
       if (!r.ok) throw new Error("API " + r.status);
       const { client_secret } = await r.json();
 
