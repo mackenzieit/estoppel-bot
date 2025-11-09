@@ -53,19 +53,27 @@
       <div class="loading">Loading Estoppel Letter Bot...</div>
     </div>
 
-    <script>
-      window.addEventListener("load", () => {
-        if (!window.ChatKit) {
-          console.error("ChatKit SDK not loaded yet.");
-          return;
-        }
-
-        window.ChatKit.open({
-          workflow_id: "wf_690bb1d11a1c8190adcb640e789dc71508144f38704a106c",
-          version: "1",
-          theme: "light", // or "dark" for Teams dark mode
-        });
+  <script>
+    function startChat() {
+      window.ChatKit.open({
+        workflow_id: "wf_690bb1d11a1c8190adcb640e789dc71508144f38704a106c",
+        version: "1",
+        theme: "light",
       });
-    </script>
+    }
+  
+    function waitForChatKit() {
+      if (window.ChatKit && typeof window.ChatKit.open === "function") {
+        startChat();
+      } else {
+        console.log("⏳ Waiting for ChatKit to load...");
+        setTimeout(waitForChatKit, 200); // retry every 200ms
+      }
+    }
+  
+    // Use DOMContentLoaded instead of window.load
+    document.addEventListener("DOMContentLoaded", waitForChatKit);
+  </script>
+
   </body>
 </html>
