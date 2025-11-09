@@ -14,13 +14,13 @@ export default async function (context, req) {
     return {
       status: 200,
       headers: { "Content-Type": "application/json" },
-      body: { client_secret: session.client_secret },
+      body: JSON.stringify({ client_secret: session.client_secret }),
     };
   } catch (err) {
     context.log("ChatKit session error:", err);
     return {
       status: 500,
-      body: { error: err.message },
+      body: JSON.stringify({ error: err.message }),
     };
   }
 }
