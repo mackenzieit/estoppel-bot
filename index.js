@@ -1,5 +1,5 @@
 async function initChatKit() {
-  const response = await fetch("/api/chatkit-session"); // 👈 uses your Azure Function
+  const response = await fetch("https://mackenzie-functions.azurewebsites.net/api/chatkit-session"); // 👈 uses your Azure Function
   const data = await response.json();
 
   if (!data?.debug?.body_text) throw new Error("No ChatKit response");
