@@ -29,32 +29,25 @@
     <div id="err"></div>
 
 <script>
-  function initChatKit() {
-    if (!window.ChatKit) {
-      console.log("⏳ Waiting for ChatKit SDK...");
-      setTimeout(initChatKit, 500);
-      return;
-    }
-
-    console.log("✅ ChatKit SDK found, initializing manually...");
-
+  async function initChatKit() {
     try {
+      const response = await fetch("/api/chatkit-session", { method: "POST" });
+      const { client_secret } = await response.json();
+
+      if (!window.ChatKit) throw new Error("SDK not loaded yet");
+
       window.ChatKit.open({
-        workflow_id: "wf_690bb1d11a1c8190adcb640e789dc71508144f38704a106c",
-        version: "1",
+        client_secret,
         theme: "light",
-        // 👇 Explicitly pass domain verification
-        domain: "black-meadow-0d305bb0f.3.azurestaticapps.net",
-        skip_domain_verification: true,
       });
-    } catch (err) {
-      console.error("❌ ChatKit init error:", err);
+    } catch (e) {
+      console.error("❌ ChatKit init failed:", e);
     }
   }
 
-  // Wait for script to load, then initialize
   window.addEventListener("load", initChatKit);
 </script>
+
 
   </body>
 </html>
